@@ -5,10 +5,11 @@ import com.prashant.atlysmoviedeck.data.remote.TmdbApi
 import com.prashant.atlysmoviedeck.data.toDomain
 import com.prashant.atlysmoviedeck.data.toEntity
 import com.prashant.atlysmoviedeck.domain.Movie
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class OfflineFirstMovieRepository(
+class OfflineFirstMovieRepository @Inject constructor(
     private val api: TmdbApi,
     private val movieDao: MovieDao
 ) : MovieRepository {
