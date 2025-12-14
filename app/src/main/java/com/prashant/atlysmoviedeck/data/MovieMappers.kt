@@ -6,7 +6,7 @@ import com.prashant.atlysmoviedeck.domain.Movie
 
 private const val TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 
-fun MovieDto.toEntity(nowEpochMs: Long): MovieEntity {
+fun MovieDto.toEntity(nowEpochMs: Long, sortIndex: Long): MovieEntity {
     return MovieEntity(
         id = id,
         title = title.orEmpty(),
@@ -15,7 +15,8 @@ fun MovieDto.toEntity(nowEpochMs: Long): MovieEntity {
         voteAverage = voteAverage ?: 0.0,
         posterPath = posterPath.orEmpty(),
         backdropPath = backdropPath.orEmpty(),
-        fetchedAtEpochMs = nowEpochMs
+        fetchedAtEpochMs = nowEpochMs,
+        sortIndex = sortIndex
     )
 }
 

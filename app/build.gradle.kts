@@ -63,6 +63,9 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
 
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.retrofit)
@@ -75,6 +78,7 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.room.paging)
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

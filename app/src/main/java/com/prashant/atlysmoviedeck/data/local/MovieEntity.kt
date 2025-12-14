@@ -12,5 +12,6 @@ data class MovieEntity(
     val voteAverage: Double,
     val posterPath: String,
     val backdropPath: String,
-    val fetchedAtEpochMs: Long
+    val fetchedAtEpochMs: Long,
+    val sortIndex: Long
 )

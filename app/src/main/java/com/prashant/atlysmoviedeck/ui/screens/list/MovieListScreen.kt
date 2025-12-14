@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
@@ -31,6 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.prashant.atlysmoviedeck.domain.Movie
 
@@ -42,6 +46,7 @@ fun MovieListScreen(
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle().value
+    val movies = viewModel.movies.collectAsLazyPagingItems()
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Movies") }) },
@@ -50,6 +55,7 @@ fun MovieListScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
+                .navigationBarsPadding()
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
@@ -63,52 +69,92 @@ fun MovieListScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            if (state.errorMessage != null && state.movies.isEmpty()) {
-                EmptyState(
-                    title = state.errorMessage ?: "Error",
-                    actionText = "Retry",
-                    onActionClick = viewModel::refresh
-                )
-                return@Column
-            }
-
-            if (state.isLoading && state.movies.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            when (val refresh = movies.loadState.refresh) {
+                is LoadState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                    return@Column
                 }
-                return@Column
+                is LoadState.Error -> {
+                    EmptyState(
+                        title = refresh.error.message ?: "Failed to load",
+                        actionText = "Retry",
+                        onActionClick = movies::retry
+                    )
+                    return@Column
+                }
+                else -> Unit
             }
 
-            if (state.movies.isEmpty()) {
+            if (movies.itemCount == 0) {
                 EmptyState(
                     title = if (state.query.isBlank()) "No movies" else "No results",
                     actionText = "Refresh",
-                    onActionClick = viewModel::refresh
+                    onActionClick = movies::refresh
                 )
                 return@Column
             }
 
-            if (state.errorMessage != null && state.movies.isNotEmpty()) {
-                Text(
-                    text = state.errorMessage ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
+            Box(modifier = Modifier.weight(1f)) {
+                LazyVerticalGrid(
+                    modifier = Modifier.fillMaxSize(),
+                    columns = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(
+                        count = movies.itemCount
+                    ) { index ->
+                        val movie = movies[index]
+                        if (movie == null) {
+                            MovieGridPlaceholderItem()
+                        } else {
+                            MovieGridItem(
+                                movie = movie,
+                                onClick = { onMovieClick(movie.id) }
+                            )
+                        }
+                    }
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(state.movies, key = { it.id }) { movie ->
-                    MovieGridItem(
-                        movie = movie,
-                        onClick = { onMovieClick(movie.id) }
-                    )
+                    when (val append = movies.loadState.append) {
+                        is LoadState.Loading -> {
+                            item(span = { GridItemSpan(2) }) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+
+                        is LoadState.Error -> {
+                            item(span = { GridItemSpan(2) }) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = append.error.message ?: "Failed to load more",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.error,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Button(onClick = movies::retry) {
+                                        Text(text = "Retry")
+                                    }
+                                }
+                            }
+                        }
+                        else -> Unit
+                    }
                 }
             }
         }
@@ -145,6 +191,33 @@ private fun MovieGridItem(
                 modifier = Modifier.height(44.dp),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun MovieGridPlaceholderItem(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .clip(MaterialTheme.shapes.medium)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
             )
         }
     }
