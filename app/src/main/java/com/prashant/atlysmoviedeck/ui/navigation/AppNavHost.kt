@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.prashant.atlysmoviedeck.ui.screens.detail.MovieDetailPlaceholderScreen
-import com.prashant.atlysmoviedeck.ui.screens.list.MovieListPlaceholderScreen
+import com.prashant.atlysmoviedeck.ui.screens.list.MovieListScreen
 
 @Composable
 fun AppNavHost(
@@ -22,7 +22,7 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable(Routes.MovieList) {
-            MovieListPlaceholderScreen(
+            MovieListScreen(
                 onMovieClick = { movieId ->
                     navController.navigate(Routes.movieDetail(movieId))
                 }

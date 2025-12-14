@@ -52,6 +52,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -75,6 +76,7 @@ dependencies {
     implementation(libs.room.ktx)
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     ksp(libs.room.compiler)
     ksp(libs.hilt.compiler)

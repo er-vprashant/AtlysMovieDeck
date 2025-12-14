@@ -9,15 +9,22 @@ class ApiKeyInterceptor : Interceptor {
         val original = chain.request()
         val apiKey = BuildConfig.TMDB_API_KEY
 
-        val newUrl = if (apiKey.isBlank()) {
-            original.url
-        } else {
-            original.url.newBuilder()
-                .addQueryParameter("api_key", apiKey)
-                .build()
+        val requestBuilder = original.newBuilder()
+
+        val newUrl = when {
+            apiKey.isBlank() -> original.url
+            apiKey.startsWith("Bearer ", ignoreCase = true) -> {
+                requestBuilder.header("Authorization", apiKey)
+                original.url
+            }
+            else -> {
+                original.url.newBuilder()
+                    .addQueryParameter("api_key", apiKey)
+                    .build()
+            }
         }
 
-        val newRequest = original.newBuilder()
+        val newRequest = requestBuilder
             .url(newUrl)
             .build()
 
