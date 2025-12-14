@@ -8,6 +8,7 @@ import com.prashant.atlysmoviedeck.data.repository.MovieRepository
 import com.prashant.atlysmoviedeck.domain.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +21,7 @@ data class MovieListUiState(
 )
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class MovieListViewModel @Inject constructor(
     private val repository: MovieRepository
 ) : ViewModel() {
