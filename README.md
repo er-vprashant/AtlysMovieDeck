@@ -2,6 +2,9 @@
 
 Small Jetpack Compose app that browses **TMDB trending movies** with offline caching and smooth pagination.
 
+## Demo Link
+- https://drive.google.com/file/d/17_JajjaH3r3D2uYDLF_tHt7NRdz4Y-5v/view?usp=drive_link
+
 ## Features
 
 - **Trending grid** (Paging 3)

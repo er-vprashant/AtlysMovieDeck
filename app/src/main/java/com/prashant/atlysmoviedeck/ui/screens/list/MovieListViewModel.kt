@@ -37,6 +37,6 @@ class MovieListViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     fun onQueryChange(newQuery: String) {
-        query.value = newQuery
+        query.value = newQuery.trim()
     }
 }
