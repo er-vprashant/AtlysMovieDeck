@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.prashant.atlysmoviedeck.ui.screens.detail.MovieDetailPlaceholderScreen
+import com.prashant.atlysmoviedeck.ui.screens.detail.MovieDetailScreen
 import com.prashant.atlysmoviedeck.ui.screens.list.MovieListScreen
 
 @Composable
@@ -35,9 +35,7 @@ fun AppNavHost(
                 navArgument(Routes.MovieIdArg) { type = NavType.LongType }
             )
         ) {
-            val movieId = it.arguments?.getLong(Routes.MovieIdArg) ?: return@composable
-            MovieDetailPlaceholderScreen(
-                movieId = movieId,
+            MovieDetailScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
